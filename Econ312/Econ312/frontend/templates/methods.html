@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<h1>{% block title %} Methodology {% endblock %}</h1>
+<hr style="width:50%;text-align:left;border-width: 2px;margin-left:0"> 
+    <body>
+        <p style="padding-top: 100px; font-size: 25px;"> 
+            <b>Scraping: Maurice Freese</b>
+        </p>
+    </body>
+    <body>
+        <style>
+            p {
+            padding-top: 10px;
+            font-size: 17px;
+            }
+        
+        </style>
+        <p>
+            In this project, I worked on obtaining financial data and finding a usable tweet scraper due to the issues that arose per Twitter’s API change which eliminated a lot of tools. I found SNScrape and figured out how to use it in CLI and in a coding environment so that Yvonne and I could get our data for them to train. Also, for Ben and Nam to be able to read and use the data, I made a JSON to CSV document cleaner on a Jupiter notebook for Yvonne and me to make sure that we only have the columns we need and get rid of the noise.
+        </p>    
+    </body>
+    <body>
+        <p style="padding-top: 100px; font-size: 25px;"> 
+            <b>Scraping Tweets: Yvonne Hsing</b>
+        </p>
+    </body>
+    <body>
+        <style>
+            p {
+            padding-top: 10px;
+            font-size: 17px;
+            }
+        
+        </style>
+        <p>
+            To scrape the data from Twitter, we use the python library “snscrape” and “pandas”. Since our topic is about Nvidia’s stock price, I scraped data from the keywords that relate to Nvidia, including “AI”, “Bitcoin”, “Cryptocurrency”, “GPU”, and “RTX”. The data is on a daily basis from the end of 2014 to the end of 2022. The scrape csv datasets are compressed into zip files then get pushed to GitHub. 
+        </p>    
+    </body>
+    <body>
+        <p style="padding-top: 100px; font-size: 25px;"> 
+            <b>NLP: Nam </b>
+        </p>
+    </body>
+    <body>
+        <style>
+            p {
+            padding-top: 10px;
+            font-size: 17px;
+            }
+        
+        </style>
+        <p>
+            For our sentiment analysis, we use a TensorFlow to create the model with the predictor.py and the model consists of 1 embedding layer with 2 bidirectional layers followed by 1 hidden layer. The model predicts the positivity of the tweet in range [0, 1] with 0 is negative and 1 is positive. The sentiment_model.ipynb file will then use the model created above and predict 100 tweets each day from 2014 to 2022 and take the average of them for each day. The dataset then will be merged with the stock data in order to go through the final model.
+        </p>    
+    </body>
+    <body>
+        <p style="padding-top: 100px; font-size: 25px;"> 
+            <b>Data Analysis and Frontend: Ben Rapkin</b>
+        </p>
+    </body>
+    <body>
+        <style>
+            p {
+            padding-top: 10px;
+            font-size: 17px;
+            }
+        
+        </style>
+        <p>
+            After scraping the financial data, it needed to be processed into a standardized and usable format. The initial layout of the data had six measurements as rows and the time/date as a column attribute, so using pandas, I transposed the matrices and combined all measurements taken on the same date into a single row. This resulted in a new layout with six measurements as columns and the dates as rows. I applied this transformation to all the relevant financial data and then merged the resulting data frames based on date. The resulting data is displayed on the "Financial Data" tabs of our website.  </p>    
+        <p>
+            The next step was preparing the data for training. To do this, I created a new data frame where each row consisted of eight rows from the financial data, resulting in dimensions of (n-7) x (8xm). This was done to give the algorithms more context when making predictions. Finally, since we were trying to predict the closing price of NVDA and the assumption was that the algorithms would be run in the morning after the market opened, I dropped the columns related to the current day's metrics (high, low, close, volume, adjvolume) as the models would not yet have access to these values.        </p>
+        <p>
+            The next step in preparing the data was normalization, which was achieved by dividing each value by the maximum value in its row, resulting in a range of [0,1]. This was done to prevent the algorithms from being biased towards larger values. The data was then split into training (67.5%), validation (22.5%), and test (10%) sets. The first two sets were shuffled to ensure that the algorithms were learning to predict from eight-day histories, as otherwise they might overly rely on rules for how the market behaved during the period contained in the validation data, which may not apply to other periods. Experimentally, we found that shuffling the data resulted in significantly higher accuracy. It is worth noting that the test data was not shuffled (although when it was, the algorithms performed significantly better), as in actual use of stock price predictors, the data is typically sequential. After training, the scores of the algorithms were recorded in a CSV file for later reference.
+        </p>
+        <p>
+            Once Nam had run the twitter data though the sentiment analysis, it went through a similar process to the financial data. An important note, however, was that it was not merged with the past 8 days. This was out of concern as the size of a single day of the twitter data, was at a similar scale to the financial data. Importantly it was not as large, but large enough that if multiplied by 8 it would fully down out the financial data.
+        </p>
+        <p>
+    After all the data analysis was done, the time came to build a frontend and write all the analysis down so that people could see, interpret, and interact with the data. The framework I settled on was Flask as it relates very closely to what we’ve been doing in class. Flask is made to use python and can be coordinated with an SQLite database. Before this project I had never done any web development nor tried html or CSS,  so this was an interesting first for me and took up a ton of time. Additionally, before this course I had no experience with pandas, matplotlib, or plotly, so preparing the graphs involved quite the learning curve.  After building the initial website, I moved to host it on python anywhere using a smaller sub git repository to house only the necessary files. Finally, I went back an added some bash and PowerShell scripts to ensure the website could still be hosted locally with very minimal coding.  
+        </p>
+        <p>
+            After all the data analysis was done, the time came to build a frontend so that people could see, interpret, and interact with the data. The framework I settled on was Flask as it relates very closely to what we’ve been doing in class. Flask is made to use python and can be coordinated with an SQLite database. Before this project I had never done any web development, so this was an interesting first for me and took up a ton of time.
+            I 
+        </p>
+        </body>
+
+{% endblock %}

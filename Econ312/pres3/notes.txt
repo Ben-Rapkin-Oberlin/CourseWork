@@ -1,0 +1,178 @@
+SELECT first_name, last_name, ex_number
+FROM executions
+WHERE first_name = 'Raymond'
+  AND last_name = 'Landry'
+
+SELECT 0 AND (0 OR 1) 
+//produces 0
+
+WHERE 0 
+//1 and 0 are the most basic Boolean statements. 
+//This block guarantees that no rows will be returned.
+
+WHERE ex_age == 62 
+//The == operator checks equality in many other 
+//programming languages but SQL uses =.
+
+WHERE ex_age 
+//SQL can evaluate the truth-value of almost 
+//anything. The 'ex_age' column is filled with 
+//integers. The rule for integers is 0 is false 
+//and everything else is true, so only rows with 
+//non-zero ages will be returned.
+
+WHERE '%obert%' LIKE first_name 
+//More than one wildcard is fine. But the 
+//pattern has to come after the LIKE operator.
+
+
+#################################################################
+#################################################################
+
+Aggregate Functions
+
+//COUNT(<column>) returns the number of non-null rows in the column.
+
+//Nulls
+//In SQL, NULL is the value of an empty entry. This is different 
+//from the empty string '' and the integer 0, both of which are not 
+//considered NULL. To check if an entry is NULL, use IS and IS NOT
+// instead of = and !=.
+
+//The solution is COUNT(*). This is reminiscent of SELECT * where
+// the * represents all columns. In practice COUNT(*) counts rows 
+//as long as any one of their columns is non-null. This helps us 
+//find table lengths because a table shouldn’t have rows that are 
+//completely null.
+
+SELECT COUNT(*) FROM executions WHERE county='Harris' 
+//filters down to a smaller dataset consisting of Harris
+//executions and then counts all the rows.
+
+CASE
+    WHEN <clause> THEN <result>
+    WHEN <clause> THEN <result>
+    ...
+    ELSE <result>
+END
+
+SELECT
+    COUNT(CASE WHEN county='Harris' THEN 1
+        ELSE NULL END),
+    COUNT(CASE WHEN county='Bexar' THEN 1
+        ELSE NULL END)
+FROM executions
+//Sums the number of executions in Harris and Bexar counties.
+
+
+
+SELECT COUNT(*) FROM executions WHERE last_statement IS NULL
+SELECT COUNT(CASE WHEN last_statement IS NULL THEN 1 ELSE NULL END) FROM executions
+SELECT COUNT(*) - COUNT(last_statement) FROM executions
+//Three ways to count the number of executions with no last statement.
+//They are in order of speed, with the first being the fastest.
+
+SELECT AVG(LENGTH(last_statement)) FROM executions
+//The average length of last statements.
+
+SELECT DISTINCT county FROM executions
+//The DISTINCT keyword removes duplicate rows.
+
+SELECT first_name, COUNT(*) FROM executions
+//The shape of the two queries don't match, meaning that this is a 
+//bad statement. Some databases will still try and return stuff however
+
+
+#################################################################
+#################################################################
+
+//GROUP BY <column>, <column>, ... and comes after the WHERE block.
+
+SELECT
+  county,
+  COUNT(*) AS county_executions
+FROM executions
+GROUP BY county
+//The AS keyword is used to rename columns. 
+
+
+
+SELECT
+  county,
+  last_statement IS NOT NULL AS has_last_statement,
+  COUNT(*) AS total_executions
+FROM executions
+GROUP BY county, has_last_statement
+//produces a nx3 table
+
+
+SELECT county
+FROM executions
+WHERE ex_age >= 50
+GROUP BY county
+HAVING COUNT(*) > 2
+//Shows only the counties with more than 2 executions of 
+//people aged 50 or older.
+
+
+//The GROUP BY block finds all combinations in the dataset
+// rather than all theoretically possible combinations.
+
+//Error: aggregate functions are not allowed in the GROUP BY clause
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+
+Nesting
+
+SELECT first_name, last_name
+FROM executions
+WHERE LENGTH(last_statement) =
+    (SELECT MAX(LENGTH(last_statement))
+     FROM executions)
+
+//returns the first and last name of the person with the longest last statement.
+
+SELECT
+  county,
+  100.0 * COUNT(*) / (Select Count(*) from executions)
+    AS percentage
+FROM executions
+GROUP BY county
+ORDER BY percentage DESC
+//The percentage of executions in each county.
+
+SELECT AVG(number_of_students)
+FROM classes
+WHERE teacher_id IN (
+    SELECT id
+    FROM teachers
+    WHERE subject = 'English' OR subject = 'History');
+//The average number of students in classes taught by English or History teachers.
+
+SELECT *
+FROM students
+WHERE class_id = (
+    SELECT id
+    FROM classes
+    WHERE number_of_students = (
+        SELECT MAX(number_of_students)
+        FROM classes));
+//displays all info from The class with the most students.
+
+
+
+Subqueiries where
+key words in Subqueiries
+multiple Nested subqueiries
+subqueiries in the select statement
+subqueiries in the from
+
+
+    In the WHERE clause, to filter data.
+    In the FROM clause, to specify a new table.
+    In the SELECT clause, to specify a certain column.
+    In the HAVING clause, as a group selector.
+
+Different database management systems have certain limitations on the number of subquery levels (e.g. up to 32 levels in SQL Server). However, in practice, you’ll rarely have more than 2-3 levels of nested queries.
+Subqueries are often computationally inefficient. Thus, I recommend avoiding nested queries when other options are available (e.g. JOINs).

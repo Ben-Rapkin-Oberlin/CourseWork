@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} aaaa {% endblock %}</h1>
+    <hr style="width:50%;text-align:left;border-width: 2px;margin-left:0"> 
+    <body>
+        <ul>
+            {% for key in countries %}
+                
+                <li>{{ key }}</li>
+                <li>{{ countries[key] }}</li>
+            {% endfor %}
+        </ul>
+    </body>      
+
+{% endblock %}
+
