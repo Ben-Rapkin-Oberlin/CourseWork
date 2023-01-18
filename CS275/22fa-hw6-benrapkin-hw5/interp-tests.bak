@@ -1,0 +1,27 @@
+;ben rapkin
+#lang racket
+
+(require rackunit)
+(require "env.rkt" "parse.rkt" "interp.rkt")
+
+(provide interp-tests init-env )
+
+(define init-env (env '(x y)
+       '(23 42)
+       empty-env))
+
+(define test-env
+  (env '(x y) '(10 23) init-env))
+
+(define a (var-exp 'x))
+
+(define interp-tests
+  (test-suite
+   "Interpreter tests"
+  (test-equal? "lit" (eval-exp (lit-exp 5) empty-env)   5)
+  (test-equal? "var1" (eval-exp (var-exp 'x) init-env) 23)
+  (test-equal? "var2" (eval-exp (var-exp 'y) init-env) 42)
+  (test-equal? "no env var" (eval-exp (var-exp 'x) empty-env) (error 'eval-exp "unknown expression type"))
+  ))
+
+

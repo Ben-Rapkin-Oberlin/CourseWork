@@ -1,0 +1,26 @@
+;ben rapkin
+#lang racket
+(provide eval-exp
+        init-env)
+
+(require "parse.rkt")
+(require "env.rkt")
+
+(define T (parse '23))
+(define init-env (env '(x y)
+       '(23 42)
+       empty-env))
+
+(define (eval-exp tree given-env)
+    ;might need to implement tree tests
+    (cond[(lit-exp? tree) (lit-exp-val tree)]
+        [(not(env? given-env)) (error 'eval-exp "given-env is not env")]
+        [(var-exp? tree) (env-lookup (var-exp-symbol tree) given-env)]
+        ;[(empty-env?)
+        [else (error 'eval-exp "unknown expression type")]))
+
+
+
+
+
+(eval-exp (var-exp 'x) init-env)

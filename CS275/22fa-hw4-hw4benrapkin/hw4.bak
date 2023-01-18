@@ -1,0 +1,28 @@
+#lang racket
+; Your name(s) here.
+
+; Export all of our top-level definitions so that tests.rkt
+; can import them. See tests.rkt.
+(provide (all-defined-out))
+
+(define (base-list-test lst)
+    (cond[(not(list? lst)) #f]
+        [(not (equal? (flatten lst) lst)) #f]
+        [else #t]))
+
+
+
+(define (replace a b lst)
+    (cond [(null? lst) '()]
+          [(not (list? lst)) (error "replace: not a list" lst)]
+          [else (foldr (lambda (x y) (if (equal? x a) (cons b y) (cons x y))) '() lst)]))
+
+
+(define (index x lst)
+    (cond [(not (list? lst)) "error"]
+          [(and (empty? lst) (empty? x)) 0]
+          [else (let([i (foldl (lambda (a b) (if (first a) a
+                                                    (if  (equal? b x ) a (add1 (second a)))))
+                                 (list #f 0) lst)])
+                    (if (equal? (length (- lst 1)) i) "error" i))]))
+

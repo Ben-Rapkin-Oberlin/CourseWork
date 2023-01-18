@@ -1,0 +1,16 @@
+#lang racket
+; Your name(s) here.
+
+; Export all of our top-level definitions so that tests.rkt
+; can import them. See tests.rkt.
+(provide (all-defined-out))
+
+;Q1
+(define (firsts lst)
+    (if (not (list? lst)) "please provid a list"
+        (if (or(eq? (length lst) 1)(eq? (length lst)0)) lst 
+            (map car lst))))
+(firsts (list '() '() '()))
+
+    
+

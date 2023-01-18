@@ -1,0 +1,110 @@
+;ben rapkin
+#lang racket
+(provide eval-exp
+        init-env
+        prim-env
+        )
+
+(require "parse.rkt")
+(require "env.rkt")
+
+
+(struct prim-proc (op) #:transparent)
+(struct closure (params body env) #:transparent) ; for closures
+
+(define primitive-operators '(+ - * / add1 sub1 negate list cons car cdr null? eqv? lt? gt? leq? geq? number? list?))
+(define basic-let (let-exp '(x y) (list (lit-exp 1) (lit-exp 2)) (app-exp (var-exp '+) (list (var-exp 'x) (var-exp 'y)(var-exp 'z)))))
+
+;(define T (parse '23))
+
+(define null '())
+(define prim-env
+  (env (cons 'null primitive-operators)
+        
+       (map box (cons '() (map prim-proc primitive-operators)))
+       empty-env))
+(define init-env (env '(x y z #t #f)
+       (map box '(23 42 7 True False))
+       prim-env))
+
+(define (apply-primitive-op op args)
+  ;(println args)
+  (cond [(eq? op '+) (apply + args)]
+        [(eq? op '-) (apply - args)]
+        [(eq? op '*) (apply * args)]
+        [(eq? op '/) (apply / args)]
+        [(eq? op 'add1) (apply add1 args)]
+        [(eq? op 'sub1) (apply sub1 args)]
+        [(eq? op 'negate) (apply (lambda(x) (* -1 x)) args)]
+        [(eq? op 'list) (apply list args)]
+        [(eq? op 'cons) (apply cons args)]
+        [(eq? op 'car)  (car (first args))] ;currently working with input (car 1 2 3) as parse wraps the args in a list
+        [(eq? op 'cdr) (cdr (first args))]
+        [(eq? op 'null?) (if (null? (first args))'True 'False)]
+        [(eq? op 'eqv?) (if (apply eqv? args)'True 'False)]
+        [(eq? op 'lt?) (if (apply < args) 'True 'False1)]
+        [(eq? op 'gt?) (if (apply > args)'True 'False)]
+        [(eq? op 'leq?) (if (apply <= args)'True 'False)]
+        [(eq? op 'geq?) (if (apply >= args)'True 'False)]
+        [(eq? op 'number?) (if (number? (first args)) 'True 'False)]
+        [(eq? op 'list?) (if (list? (first args)) 'True 'False)]
+        [else (error 'apply-primitive-op "Unknown primitive: ~s" op)]))
+
+(define (apply-proc proc args)
+  (cond [(prim-proc? proc)
+         (apply-primitive-op (prim-proc-op proc) args)]
+        [(closure? proc)
+                (if (eq? (length (closure-params proc)) (length args))
+                        (eval-exp (closure-body proc)
+                        ;make new env where the params are bound to the args
+                        (env (closure-params proc)
+                        (map box args) ;args have already been evaluated
+                        (closure-env proc))) ;the closure's env 
+                (error 'apply-proc "Wrong number of arguments: ~s ~s" (closure-params proc) args))]
+        [else (error 'apply-proc "bad procedure: ~s" proc)]))
+
+
+
+
+(define (eval-exp tree given-env)
+    ;(println tree)
+    ;(println " ")
+    (cond[(lit-exp? tree) (lit-exp-val tree)]
+        [(not(env? given-env)) (error 'eval-exp "given-env is not env")]
+        [(var-exp? tree) (unbox (env-lookup given-env (var-exp-symbol tree)))]
+        [(ite-exp? tree) (if (or (eq? (eval-exp (ite-exp-cond tree) given-env) 'False) (eq? (eval-exp (ite-exp-cond tree) given-env) 0)) ;if the condition is false or 0
+                                (eval-exp (ite-exp-else tree) given-env)
+                                (eval-exp (ite-exp-then tree) given-env))] 
+
+        [(let-exp? tree)
+                (eval-exp (let-exp-body tree) 
+                          (env (let-exp-symbols tree)
+                               (map box (map (lambda (exp) (eval-exp exp given-env)) (let-exp-bindings tree))) given-env))]
+
+        [(lambda-exp? tree) (closure (lambda-exp-symbols tree) (lambda-exp-body tree) given-env)]
+        [(set-exp? tree)
+                (set-box! (env-lookup given-env (set-exp-symbol tree)) (eval-exp (set-exp-exp tree) given-env))]
+        [(begin-exp? tree)
+                (foldl (lambda (exp acc)(eval-exp exp given-env)) '() (begin-exp-exps tree))]
+        [(app-exp? tree)
+            (let ([proc (eval-exp (app-exp-proc tree) given-env)]
+                    [args (map (lambda (arg) (eval-exp arg given-env)) (app-exp-args tree))])
+                (apply-proc proc args))]
+        [else (error 'eval-exp "unknown expression type ~s" tree)]))
+
+
+(define even (letrec ([even? (lambda (n) (if (eqv? 0 n) 'True (odd? (sub1 n))))]  
+             [odd? (lambda (n) (if (eqv? 0 n) 'False (even? (sub1 n))))] )
+   (even? 5)))
+
+(define basic-letrec
+        (letrec([foo (lambda (x)
+                (if (eq? x 0) 0 (foo (sub1 x))))])
+                (foo 2)))        
+
+(define fac-letrec
+        (letrec ([fac (lambda (x) (if (eqv? x 0) 1 (* x (fac (sub1 x)))))]) ;eqv is in prims
+                (fac 4)))
+
+
+

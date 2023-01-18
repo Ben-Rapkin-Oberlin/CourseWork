@@ -1,0 +1,41 @@
+;ben rapkin
+#lang racket
+
+;EXP → number: parse into lit-exp
+
+
+(provide (all-defined-out))
+         
+
+
+
+
+
+; The empty environment is null.
+(define empty-lit-exp null)
+(define empty-lit-exp? null?)
+
+(define empty-var-exp null)
+(define empty-var-exp? null?)
+
+
+
+(struct lit-exp (val) #:transparent) ; for just numbers
+(struct var-exp (symbol) #:transparent) ; for symbols
+(struct app-exp (proc args)#:transparent) ; for function application
+
+;first name is proc, everything else is args, should call parse recursively on all args
+
+
+(define (parse input)
+    (cond
+        [(number? input) (lit-exp input)]
+        [(symbol? input) (var-exp input)]
+        ;[(list? s) (app-exp (car s) (map parse (cdr s)))]
+        [(list? input)
+            (cond [(empty? input) (error 'parse-exp "empty list")]
+                  [else (app-exp (parse (car input)) (map parse (cdr input)))])]
+        [else (error 'parse-exp "non-numeric input")]))
+
+
+;(parse '(foo 1 2 3))
