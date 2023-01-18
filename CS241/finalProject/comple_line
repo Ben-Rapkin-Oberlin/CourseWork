@@ -1,0 +1,1 @@
+g++ -g -pedantic -Wall -Wextra -o ______ train.cxx naiveMetrics.cxx synScan.cxx

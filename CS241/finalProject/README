@@ -1,0 +1,3 @@
+This is the scaning protocal for our plagerism dectector. It scans a provided code file
+(pig.c and smallp.c are included test material) for a number of statistical markers before 
+sending that information off for other processes to interperate

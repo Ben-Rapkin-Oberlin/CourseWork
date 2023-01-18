@@ -1,0 +1,17 @@
+Ben Rapkin and Gawain Liu
+
+
+decode will decode a binary file, it assumes the tree is on line 1
+and the encoded text is on line 2. It takes a file from the command
+line. For whatever reason argv[0] seems to be a arbitray int when
+the code is run, so it checks for file name in argv[1]
+
+decode.c is the source code for decode.c
+
+workHorse.c is where building the tree occurs
+
+workHorse.h is the header file for workHorse.c
+
+there are no known bugs
+
+we adhered to the honor code.
