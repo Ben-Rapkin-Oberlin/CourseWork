@@ -1,0 +1,5 @@
+negative,primary_hypothyroid,compensated_hypothyroid,secondary_hypothyroid,
+89,0,0,0,negative
+318,13,17,0,primary_hypothyroid
+137,0,7,0,compensated_hypothyroid
+167,1,6,0,secondary_hypothyroid
