@@ -1,0 +1,11 @@
+import numpy
+
+def arrays(arr):
+    # complete this function
+    # use numpy.array
+    a=numpy.array()
+    for i in arr:
+        a.append(i)
+    a = a[::-1]
+    print(a)
+        
